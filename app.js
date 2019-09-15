@@ -1,9 +1,11 @@
+
 require('dotenv').config();
 
+const db = require('./config/db')
 
-const twilioData = {
-    sid: String(process.env.TWILIO_SID),
-    token: String(process.env.TWILIO_TOKEN),
+const twilio = {
+    sid: process.env.TWILIO_SID,
+    token: process.env.TWILIO_TOKEN,
     phone: process.env.TWILIO_PHONE
 }
 
@@ -12,29 +14,25 @@ const baby = {
     phone : process.env.BABY_PHONE
 }
 
-const twilio = require('twilio');
+const client = require('twilio')(twilio.sid,twilio.token);
+ 
 
-const client = new twilio(twilioData.sid, twilioData.token);
-
-console.log(twilioData.sid)
-
-client.messages
-  .create({
-     body: 'Just trying new things, boi',
-     from: twilioData.phone,
-     to: baby.phone
-   })
-  .then(message => {
-      console.log(message.sid);
+db.query('SELECT texto FROM mensajes WHERE activo=1 ORDER BY ultimavezenviado ASC LIMIT 10', function (error, results, fields) {
+  if (error) throw error;
+  let randomNumber= Math.floor((Math.random() * 10) + 1) -1;
+  console.log(randomNumber)
+  console.log('The solution is: ', results[randomNumber]);
 });
+ 
+db.end();
 
-// const port= process.env.HOST_PORT || 3000;
 
-// app.get('/', function(req, res){
 
-//     res.send('Hello world')
+// client.messages.create({
+//     to: baby.phone,
+//     from: twilio.phone,
+//     body: 'Que pedo, soy Twilio-chan'
 // })
-
-// app.listen(port,function(){
-//     console.log('Example app listening on port '+ port)
-// })
+// .then((message)=>{
+//     console.log(message.sid);
+// });
