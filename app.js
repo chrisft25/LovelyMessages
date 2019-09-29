@@ -1,7 +1,8 @@
 
 require('dotenv').config();
-
+const math = require('./helpers/math_functions')
 const db = require('./config/db');
+
 
 const config = {
   max_random : process.env.CONFIG_MAX_RANDOM
@@ -21,12 +22,12 @@ const baby = {
 const client = require('twilio')(twilio.sid,twilio.token);
  
 
-db.query('SELECT texto,idMensaje FROM mensajes WHERE activo=1 ORDER BY ultimavezenviado ASC LIMIT 10', function (error, results, fields) {
+db.query('SELECT idMensaje,texto FROM mensajes WHERE activo=1 ORDER BY ultimavezenviado ASC LIMIT 10', function (error, results, fields) {
   if (error) throw error;
-  let randomNumber= Math.floor((Math.random() * config.max_random) + 1) -1;
+  let randomNumber= math.randomNumber(config.max_random);
   console.log(randomNumber)
   let result = results[randomNumber];
-  console.log('The solution is: ', );
+  console.log('Text to send: ', result.texto );
   client.messages.create({
     to: baby.phone,
     from: twilio.phone,
@@ -35,8 +36,7 @@ db.query('SELECT texto,idMensaje FROM mensajes WHERE activo=1 ORDER BY ultimavez
 .then((message)=>{
   db.query('INSERT INTO log_messages(idMensaje,phone) VALUES(?,?)',[result.idMensaje,baby.phone], function (error, results, fields) {
     if (error) throw error;    
-    
-    console.log('Enviado correctamente');
+    console.log('SMS sent successfully');
     db.end();
   });
 });

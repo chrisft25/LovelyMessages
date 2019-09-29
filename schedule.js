@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 require('dotenv').config();
-
+const math = require('./helpers/math_functions')
 const config = {
     max_messages : process.env.NUMBER_MESSAGES,
     max_hour : process.env.MAX_HOUR
@@ -31,8 +31,8 @@ while(start<config.max_hour){
 
     //We calculate the random hour between the section and a random minute between 1 and 59.
 
-    let randomHour = Math.floor(Math.random() * (max_section - start + 1) + start);
-    let randomMinute = Math.floor((Math.random() * 59) + 1) -1;
+    let randomHour = math.randomNumber(max_section,start);
+    let randomMinute = math.randomNumber(59);
 
     //If the random minute is lower than 10, we add a zero at the beginning, so it maintains the "XX" format.
 
@@ -43,7 +43,7 @@ while(start<config.max_hour){
     console.log(randomHour + ":" + randomMinute)
 
     //We execute an at command in linux, so we can schedule the script randomly.
-    
+
     exec(`echo "/usr/bin/node /home/lovely/app.js" | at ${randomHour}:${randomMinute}`,(err,stdout,stderr)=>{
         if(err){
             console.error(err)
