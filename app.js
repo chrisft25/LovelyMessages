@@ -22,22 +22,26 @@ const baby = {
 const client = require('twilio')(twilio.sid,twilio.token);
  
 
-db.query('SELECT idMensaje,texto FROM mensajes WHERE activo=1 ORDER BY ultimavezenviado ASC LIMIT 10', function (error, results, fields) {
-  if (error) throw error;
+db.query(`SELECT idMensaje,texto FROM mensajes WHERE activo=1 ORDER BY ultimavezenviado ASC LIMIT ${config.max_random}`, function (error, results, fields) {
+
+  if (error){console.error(error)};
   let randomNumber= math.randomNumber(config.max_random);
   console.log(randomNumber)
   let result = results[randomNumber];
   console.log('Text to send: ', result.texto );
+
   client.messages.create({
     to: baby.phone,
     from: twilio.phone,
     body: result.texto
   })
 .then((message)=>{
+
   db.query('INSERT INTO log_messages(idMensaje,phone) VALUES(?,?)',[result.idMensaje,baby.phone], function (error, results, fields) {
-    if (error) throw error;    
+    if (error){console.error(error)};  
     console.log('SMS sent successfully');
     db.end();
   });
+
 });
 });
